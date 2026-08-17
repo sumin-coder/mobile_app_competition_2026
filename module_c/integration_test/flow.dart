@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:lp_app/main.dart' as app;
+import 'package:lp_app/module_c/main.dart' as app;
 import 'package:lp_app/module_b/native.dart';
 
 export 'package:flutter/material.dart';
@@ -90,7 +90,7 @@ extension Flow on WidgetTester {
 
 Future<void> startApp(WidgetTester tester) async {
   FavoriteStorage.memory = {};
-  await app.start('');
+  await app.startModuleCApp('');
   await tester.pumpAndSettle();
   expect(find.byKey(const Key('login_button')), findsOneWidget);
 }

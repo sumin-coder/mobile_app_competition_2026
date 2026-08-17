@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'module_a/api.dart';
-import 'module_a/app.dart';
-import 'module_a/app_state.dart';
+import 'api.dart';
+import 'app.dart';
+import 'app_state.dart';
 
 const defaultBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
