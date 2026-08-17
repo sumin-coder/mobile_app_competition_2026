@@ -13,7 +13,6 @@ abstract interface class ModuleCRepository {
 class CumulativeModuleAApi extends ModuleAApi {
   CumulativeModuleAApi(super.client);
 
-  @override
   Future<AuthSession> login(String email, String password) async {
     try {
       return saveSession(await loginRequest('/auth/login/v2', email, password));
@@ -28,7 +27,6 @@ class ModuleCApi implements ModuleCRepository {
   ModuleCApi(this.client);
   final ApiClient client;
 
-  @override
   Future<Product> addProduct(ProductDraft draft) async {
     late final List<int> bytes;
     try {
@@ -59,10 +57,8 @@ class ModuleCApi implements ModuleCRepository {
     );
   }
 
-  @override
   Future<List<Product>> getMyProducts() async =>
       client.products(await client.request('GET', '/products/me'));
 
-  @override
   Future<void> deleteProduct(int id) => client.send('DELETE', '/products/$id');
 }

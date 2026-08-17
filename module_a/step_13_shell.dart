@@ -5,7 +5,6 @@ import 'step_07_ui.dart';
 class ModuleAShell extends StatefulWidget {
   const ModuleAShell({super.key});
 
-  @override
   State<ModuleAShell> createState() => _ModuleAShellState();
 }
 
@@ -20,26 +19,17 @@ class _ModuleAShellState extends State<ModuleAShell> {
     exploreKey++;
   });
 
-  @override
-  Widget build(BuildContext context) => Scaffold(
-    body: IndexedStack(
-      index: page,
-      children: [
-        HomeScreen(onExplore: explore, moduleBEnabled: false),
-        ExploreScreen(
-          key: ValueKey(exploreKey),
-          genreSeed: genre,
-          moduleBEnabled: false,
-        ),
-      ],
-    ),
-    bottomNavigationBar: NavigationBar(
-      selectedIndex: page,
-      onDestinationSelected: (value) => setState(() => page = value),
-      destinations: [_destination('home', '홈'), _destination('search', '탐색')],
-    ),
+  Widget build(BuildContext context) => AppShell(
+    index: page,
+    pages: [
+      HomeScreen(onExplore: explore, moduleBEnabled: false),
+      ExploreScreen(
+        key: ValueKey(exploreKey),
+        genreSeed: genre,
+        moduleBEnabled: false,
+      ),
+    ],
+    select: (value) => setState(() => page = value),
+    destinations: [appDestination('home', '홈'), appDestination('search', '탐색')],
   );
 }
-
-NavigationDestination _destination(String icon, String label) =>
-    NavigationDestination(icon: AssetIcon(commonIcon(icon)), label: label);

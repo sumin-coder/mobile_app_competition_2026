@@ -4,6 +4,37 @@ import 'step_01_models.dart';
 
 enum LoadStatus { initial, loading, success, empty, error }
 
+typedef ListStateUpdate<T> =
+    void Function(LoadStatus status, String? error, List<T>? data);
+
+Future<void> loadListState<T>(
+  Future<List<T>> Function() fetch, {
+  required Object? Function() session,
+  required ListStateUpdate<T> update,
+  required VoidCallback notify,
+  bool silent = false,
+}) async {
+  final activeSession = session();
+  if (!silent) {
+    update(LoadStatus.loading, null, null);
+    notify();
+  }
+  try {
+    final data = await fetch();
+    if (session() != activeSession) return;
+    update(data.isEmpty ? LoadStatus.empty : LoadStatus.success, null, data);
+  } on Object catch (error) {
+    if (session() != activeSession) return;
+    update(
+      LoadStatus.error,
+      error is AppException ? error.message : '데이터를 불러오지 못했습니다.',
+      null,
+    );
+  } finally {
+    notify();
+  }
+}
+
 mixin ModuleAState on ChangeNotifier {
   ModuleARepository get moduleARepository;
   Future<void> loadAddedModules() async {}
@@ -51,41 +82,37 @@ mixin ModuleAState on ChangeNotifier {
   Future<void> _loadProducts(
     Future<List<Product>> Function() fetch, {
     bool silent = false,
-  }) async {
-    final activeSession = session;
-    if (!silent) {
-      productStatus = LoadStatus.loading;
-      notifyListeners();
-    }
-    try {
-      final data = await fetch();
-      if (session != activeSession) return;
-      products = data;
-      productStatus = data.isEmpty ? LoadStatus.empty : LoadStatus.success;
-      productError = null;
-    } on Object catch (error) {
-      if (session != activeSession) return;
-      productStatus = LoadStatus.error;
-      productError = error is AppException ? error.message : '데이터를 불러오지 못했습니다.';
-    } finally {
-      notifyListeners();
-    }
+  }) => loadListState(
+    fetch,
+    session: () => session,
+    silent: silent,
+    notify: notifyListeners,
+    update: (status, error, data) {
+      if (data != null) products = data;
+      productStatus = status;
+      if (status != LoadStatus.loading) productError = error;
+    },
+  );
+}
+
+class StateScope<T extends ChangeNotifier> extends InheritedNotifier<T> {
+  const StateScope({required T state, required super.child, super.key})
+    : super(notifier: state);
+
+  static T watch<T extends ChangeNotifier>(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<StateScope<T>>();
+    assert(scope != null, 'StateScope<$T> was not found.');
+    return scope!.notifier!;
   }
 }
 
-class ModuleAStateScope extends InheritedNotifier<ChangeNotifier> {
+class ModuleAStateScope extends StateScope<ModuleAState> {
   const ModuleAStateScope({
     required ChangeNotifier state,
     required super.child,
     super.key,
-  }) : super(notifier: state);
-
-  static ModuleAState of(BuildContext context) {
-    final scope = context
-        .dependOnInheritedWidgetOfExactType<ModuleAStateScope>();
-    assert(scope != null, 'ModuleAStateScope was not found.');
-    return scope!.notifier! as ModuleAState;
-  }
+  }) : super(state: state as ModuleAState);
+  static ModuleAState of(BuildContext context) => StateScope.watch(context);
 }
 
 extension ModuleAContext on BuildContext {

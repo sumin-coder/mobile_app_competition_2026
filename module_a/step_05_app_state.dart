@@ -5,6 +5,5 @@ import 'step_04_state.dart';
 class ModuleAAppState extends ChangeNotifier with ModuleAState {
   ModuleAAppState({required this.moduleARepository});
 
-  @override
   final ModuleARepository moduleARepository;
 }

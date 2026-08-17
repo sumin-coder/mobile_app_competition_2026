@@ -118,14 +118,11 @@ class ModuleAApi implements ModuleARepository {
     return session;
   }
 
-  @override
   Future<AuthSession> login(String email, String password) async =>
       saveSession(await loginRequest('/auth/login', email, password));
 
-  @override
   void clearSession() => client.token = null;
 
-  @override
   Future<void> signup(SignupData data) async {
     await client.request(
       'POST',
@@ -135,7 +132,6 @@ class ModuleAApi implements ModuleARepository {
     );
   }
 
-  @override
   Future<List<Product>> getProducts([String keyword = '']) async =>
       client.products(
         await client.request(
@@ -150,7 +146,6 @@ class ModuleAApi implements ModuleARepository {
         ),
       );
 
-  @override
   Future<Product> getProduct(int id) async =>
       client.product(await client.request('GET', '/products/$id'));
 }

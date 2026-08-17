@@ -7,11 +7,11 @@ class FavoriteStorage {
   @visibleForTesting
   static Map<String, List<String>>? memory;
 
-  static Future<List<String>> strings(String key) async =>
-      memory?[key] ??
-      List<String>.from(
-        await _channel.invokeMethod('getStrings', key) ?? const [],
-      );
+  static Future<List<String>> strings(String key) async => memory == null
+      ? List<String>.from(
+          await _channel.invokeMethod('getStrings', key) ?? const [],
+        )
+      : memory![key] ?? const [];
 
   static Future<void> saveStrings(String key, List<String> value) async {
     if (memory case final store?) {

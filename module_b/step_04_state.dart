@@ -48,28 +48,17 @@ mixin ModuleBState on ChangeNotifier {
     notificationStatus = LoadStatus.initial;
   }
 
-  Future<void> refreshNotifications({bool silent = false}) async {
-    final activeSession = session;
-    if (!silent) {
-      notificationStatus = LoadStatus.loading;
-      notifyListeners();
-    }
-    try {
-      final data = await moduleBRepository.getNotifications();
-      if (session != activeSession) return;
-      notifications = data;
-      notificationStatus = data.isEmpty ? LoadStatus.empty : LoadStatus.success;
-      notificationError = null;
-    } on Object catch (error) {
-      if (session != activeSession) return;
-      notificationStatus = LoadStatus.error;
-      notificationError = error is AppException
-          ? error.message
-          : '데이터를 불러오지 못했습니다.';
-    } finally {
-      notifyListeners();
-    }
-  }
+  Future<void> refreshNotifications({bool silent = false}) => loadListState(
+    moduleBRepository.getNotifications,
+    session: () => session,
+    silent: silent,
+    notify: notifyListeners,
+    update: (status, error, data) {
+      if (data != null) notifications = data;
+      notificationStatus = status;
+      if (status != LoadStatus.loading) notificationError = error;
+    },
+  );
 
   Future<void> toggleFavorite(int id) =>
       _setFavorite(id, !favoriteIds.contains(id));
@@ -158,19 +147,23 @@ mixin ModuleBState on ChangeNotifier {
   void disposeModuleB() => _notificationTimer?.cancel();
 }
 
-class ModuleBStateScope extends InheritedNotifier<ChangeNotifier> {
+mixin ModuleBLifecycle on ChangeNotifier, ModuleAState, ModuleBState {
+  Future<void> initialize() => initializeModuleB();
+  Future<void> loadAddedModules() => startModuleB();
+  void clearAddedModules() => clearModuleB();
+  void dispose() {
+    disposeModuleB();
+    super.dispose();
+  }
+}
+
+class ModuleBStateScope extends StateScope<ModuleBState> {
   const ModuleBStateScope({
     required ChangeNotifier state,
     required super.child,
     super.key,
-  }) : super(notifier: state);
-
-  static ModuleBState of(BuildContext context) {
-    final scope = context
-        .dependOnInheritedWidgetOfExactType<ModuleBStateScope>();
-    assert(scope != null, 'ModuleBStateScope was not found.');
-    return scope!.notifier! as ModuleBState;
-  }
+  }) : super(state: state as ModuleBState);
+  static ModuleBState of(BuildContext context) => StateScope.watch(context);
 }
 
 extension ModuleBContext on BuildContext {

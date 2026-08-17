@@ -40,30 +40,25 @@ class _MainShellState extends State<MainShell> {
           const ProfileScreen(),
         ],
         destinations = [
-          _nav('home', '홈'),
-          _nav('search', '탐색'),
+          appDestination('home', '홈'),
+          appDestination('search', '탐색'),
           NavigationDestination(
             icon: _addButton(),
             selectedIcon: _addButton(),
             label: '',
             tooltip: '상품 등록',
           ),
-          _nav('heart', '관심상품'),
-          _nav('mypage', '마이페이지'),
+          appDestination('heart', '관심상품'),
+          appDestination('mypage', '마이페이지'),
         ];
-    return Scaffold(
-      body: IndexedStack(index: page, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: page,
-        onDestinationSelected: select,
-        destinations: destinations,
-      ),
+    return AppShell(
+      index: page,
+      pages: pages,
+      select: select,
+      destinations: destinations,
     );
   }
 }
-
-NavigationDestination _nav(String icon, String label) =>
-    NavigationDestination(icon: AssetIcon(commonIcon(icon)), label: label);
 
 Widget _addButton() => Container(
   key: const Key('add-navigation-button'),

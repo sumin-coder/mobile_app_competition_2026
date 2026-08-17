@@ -21,26 +21,16 @@ mixin ModuleCState on ChangeNotifier {
     myProductStatus = LoadStatus.initial;
   }
 
-  Future<void> refreshMyProducts() async {
-    final activeSession = session;
-    myProductStatus = LoadStatus.loading;
-    notifyListeners();
-    try {
-      final data = await moduleCRepository.getMyProducts();
-      if (session != activeSession) return;
-      myProducts = data;
-      myProductStatus = data.isEmpty ? LoadStatus.empty : LoadStatus.success;
-      myProductError = null;
-    } on Object catch (error) {
-      if (session != activeSession) return;
-      myProductStatus = LoadStatus.error;
-      myProductError = error is AppException
-          ? error.message
-          : '데이터를 불러오지 못했습니다.';
-    } finally {
-      notifyListeners();
-    }
-  }
+  Future<void> refreshMyProducts() => loadListState(
+    moduleCRepository.getMyProducts,
+    session: () => session,
+    notify: notifyListeners,
+    update: (status, error, data) {
+      if (data != null) myProducts = data;
+      myProductStatus = status;
+      if (status != LoadStatus.loading) myProductError = error;
+    },
+  );
 
   Future<void> addProduct(ProductDraft draft) async {
     if (isSubmittingProduct) return;
@@ -64,19 +54,13 @@ mixin ModuleCState on ChangeNotifier {
       Future.wait([refreshProducts(silent: true), refreshMyProducts()]);
 }
 
-class ModuleCStateScope extends InheritedNotifier<ChangeNotifier> {
+class ModuleCStateScope extends StateScope<ModuleCState> {
   const ModuleCStateScope({
     required ChangeNotifier state,
     required super.child,
     super.key,
-  }) : super(notifier: state);
-
-  static ModuleCState of(BuildContext context) {
-    final scope = context
-        .dependOnInheritedWidgetOfExactType<ModuleCStateScope>();
-    assert(scope != null, 'ModuleCStateScope was not found.');
-    return scope!.notifier! as ModuleCState;
-  }
+  }) : super(state: state as ModuleCState);
+  static ModuleCState of(BuildContext context) => StateScope.watch(context);
 }
 
 extension ModuleCContext on BuildContext {

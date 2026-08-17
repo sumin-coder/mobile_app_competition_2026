@@ -1,24 +1,17 @@
-import 'package:flutter/material.dart';
-import '../module_a/step_00_app_theme.dart';
 import '../module_a/step_08_auth.dart';
-import '../module_a/step_04_state.dart';
 import 'step_05_app_state.dart';
 import 'step_13_shell.dart';
-import 'step_04_state.dart';
+import 'step_07_ui.dart';
 
 Widget moduleBApp(ModuleBAppState state) => ModuleAStateScope(
   state: state,
   child: ModuleBStateScope(
     state: state,
-    child: MaterialApp(
+    child: AuthApp(
       title: 'Vinyl Groove - Module B',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      home: AnimatedBuilder(
-        animation: state,
-        builder: (context, _) =>
-            state.isLoggedIn ? const ModuleBShell() : const LoginScreen(),
-      ),
+      state: state,
+      home: const ModuleBShell(),
+      signedOut: const LoginScreen(),
     ),
   ),
 );

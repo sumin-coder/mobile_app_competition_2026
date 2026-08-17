@@ -14,7 +14,6 @@ class ModuleBApi implements ModuleBRepository {
   ModuleBApi(this.client);
   final ApiClient client;
 
-  @override
   Future<Product?> findByBarcode(String barcode) async {
     final products = client.products(
       await client.request(
@@ -26,7 +25,6 @@ class ModuleBApi implements ModuleBRepository {
     return products.isEmpty ? null : products.first;
   }
 
-  @override
   Future<List<PriceNotification>> getNotifications() async => client
       .list(
         client.map(
@@ -36,15 +34,12 @@ class ModuleBApi implements ModuleBRepository {
       .map((json) => PriceNotification.fromJson(json, baseUri: client.baseUri))
       .toList();
 
-  @override
   Future<void> readNotification(int id) =>
       client.send('PUT', '/notifications/read', query: {'id': '$id'});
 
-  @override
   Future<void> readAllNotifications() =>
       client.send('PUT', '/notifications/read', query: {'all': 'true'});
 
-  @override
   Future<void> deleteAllNotifications() =>
       client.send('DELETE', '/notifications');
 }

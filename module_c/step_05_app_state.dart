@@ -7,35 +7,22 @@ import 'step_02_api.dart';
 import 'step_04_state.dart';
 
 class AppState extends ChangeNotifier
-    with ModuleAState, ModuleBState, ModuleCState {
+    with ModuleAState, ModuleBState, ModuleCState, ModuleBLifecycle {
   AppState({
     required this.moduleARepository,
     required this.moduleBRepository,
     required this.moduleCRepository,
   });
 
-  @override
   final ModuleARepository moduleARepository;
-  @override
   final ModuleBRepository moduleBRepository;
-  @override
   final ModuleCRepository moduleCRepository;
 
-  Future<void> initialize() => initializeModuleB();
-
-  @override
   Future<void> loadAddedModules() =>
       Future.wait([startModuleB(), startModuleC()]);
 
-  @override
   void clearAddedModules() {
     clearModuleB();
     clearModuleC();
-  }
-
-  @override
-  void dispose() {
-    disposeModuleB();
-    super.dispose();
   }
 }

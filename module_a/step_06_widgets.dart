@@ -128,6 +128,38 @@ Widget AppPage({
   body: body,
 );
 
+Widget AuthApp({
+  required String title,
+  required ModuleAState state,
+  required Widget home,
+  required Widget signedOut,
+}) => MaterialApp(
+  title: title,
+  debugShowCheckedModeBanner: false,
+  theme: AppTheme.dark,
+  home: AnimatedBuilder(
+    animation: state,
+    builder: (_, _) => state.isLoggedIn ? home : signedOut,
+  ),
+);
+
+Widget AppShell({
+  required int index,
+  required List<Widget> pages,
+  required ValueChanged<int> select,
+  required List<NavigationDestination> destinations,
+}) => Scaffold(
+  body: IndexedStack(index: index, children: pages),
+  bottomNavigationBar: NavigationBar(
+    selectedIndex: index,
+    onDestinationSelected: select,
+    destinations: destinations,
+  ),
+);
+
+NavigationDestination appDestination(String icon, String label) =>
+    NavigationDestination(icon: AssetIcon(commonIcon(icon)), label: label);
+
 Widget RefreshPage<T>({
   required String title,
   required LoadStatus status,
