@@ -44,4 +44,4 @@ class ModuleBApi implements ModuleBRepository {
       client.send('DELETE', '/notifications');
 }
 
-String normalizeBarcode(String barcode) => barcode.padLeft(13, '0');
+String normalizeBarcode(String barcode) => barcode.trim();

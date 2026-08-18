@@ -22,11 +22,10 @@ class _ModuleAShellState extends State<ModuleAShell> {
   Widget build(BuildContext context) => AppShell(
     index: page,
     pages: [
-      HomeScreen(onExplore: explore, moduleBEnabled: false),
+      HomeScreen(onExplore: explore),
       ExploreScreen(
         key: ValueKey(exploreKey),
         genreSeed: genre,
-        moduleBEnabled: false,
       ),
     ],
     select: (value) => setState(() => page = value),

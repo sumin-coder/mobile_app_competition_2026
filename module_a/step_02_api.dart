@@ -35,13 +35,20 @@ class ApiClient {
       path: '${baseUri.path}$path',
       queryParameters: query.isEmpty ? null : query,
     );
+    final accessToken = token;
+    if (authenticate && (accessToken == null || accessToken.isEmpty)) {
+      throw const AppException('로그인이 필요합니다.', 401);
+    }
     try {
       final request = await _client
           .openUrl(method, uri)
           .timeout(const Duration(seconds: 10));
       request.headers.contentType = ContentType.json;
-      if (authenticate && token != null) {
-        request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
+      if (authenticate) {
+        request.headers.set(
+          HttpHeaders.authorizationHeader,
+          'Bearer ${accessToken!}',
+        );
       }
       if (body != null) request.write(jsonEncode(body));
       final response = await request.close().timeout(

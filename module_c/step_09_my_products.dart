@@ -47,7 +47,11 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
   Widget _item(BuildContext context, ModuleCState state, Product item) =>
       ProductListCard(
         product: item,
-        onTap: () => openProductDetail(context, item.id),
+        onTap: () => openProductDetail(
+          context,
+          item.id,
+          actionsBuilder: moduleBProductDetailActions,
+        ),
         details: Row(
           children: [
             InfoBadge(item.condition),

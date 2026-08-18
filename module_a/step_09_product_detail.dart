@@ -1,21 +1,21 @@
-import '../module_b/step_07_ui.dart';
+import 'step_07_ui.dart';
 
 Future<void> openProductDetail(
   BuildContext context,
   int id, {
-  bool moduleBEnabled = true,
+  ProductDetailActionsBuilder? actionsBuilder,
 }) => context.openPage(
-  ProductDetailScreen(productId: id, moduleBEnabled: moduleBEnabled),
+  ProductDetailScreen(productId: id, actionsBuilder: actionsBuilder),
 );
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({
     required this.productId,
-    this.moduleBEnabled = true,
+    this.actionsBuilder,
     super.key,
   });
   final int productId;
-  final bool moduleBEnabled;
+  final ProductDetailActionsBuilder? actionsBuilder;
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
@@ -62,15 +62,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             pinned: true,
             backgroundColor: AppColors.background,
             leading: _round(Icons.arrow_back, context.closePage),
-            actions: widget.moduleBEnabled
-                ? [
-                    FavoriteButton(
-                      selected: context.moduleB.favoriteIds.contains(p.id),
-                      onPressed: () => context.moduleB.toggleFavorite(p.id),
-                      large: true,
-                    ).padAll(8),
-                  ]
-                : null,
+            actions: widget.actionsBuilder?.call(context, p),
             flexibleSpace: FlexibleSpaceBar(
               background: Stack(
                 fit: StackFit.expand,

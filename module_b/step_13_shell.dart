@@ -1,5 +1,6 @@
 import '../module_a/step_12_module_a.dart';
 import 'step_09_favorites.dart';
+import 'step_12_features.dart';
 import 'step_07_ui.dart';
 
 class ModuleBShell extends StatefulWidget {
@@ -27,8 +28,12 @@ class _ModuleBShellState extends State<ModuleBShell> {
   Widget build(BuildContext context) => AppShell(
     index: page,
     pages: [
-      HomeScreen(onExplore: explore),
-      ExploreScreen(key: ValueKey(exploreKey), genreSeed: genre),
+      HomeScreen(onExplore: explore, features: moduleBFeatures()),
+      ExploreScreen(
+        key: ValueKey(exploreKey),
+        genreSeed: genre,
+        features: moduleBFeatures(),
+      ),
       const FavoritesScreen(),
     ],
     select: select,

@@ -236,7 +236,11 @@ class _RecommendationState extends State<Recommendation>
           if (playing)
             InkWell(
               key: ValueKey('info_${product.id}'),
-              onTap: () => openProductDetail(context, product.id),
+              onTap: () => openProductDetail(
+                context,
+                product.id,
+                actionsBuilder: moduleBProductDetailActions,
+              ),
               child: _productInfo(product),
             ).pad(const EdgeInsets.only(top: 8)),
           vGap8,

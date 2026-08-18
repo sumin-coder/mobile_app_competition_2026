@@ -32,9 +32,14 @@ class _MainShellState extends State<MainShell> {
   }
 
   Widget build(BuildContext context) {
+    final features = moduleBFeatures();
     final pages = [
-          HomeScreen(onExplore: explore),
-          ExploreScreen(key: ValueKey(exploreKey), genreSeed: genre),
+          HomeScreen(onExplore: explore, features: features),
+          ExploreScreen(
+            key: ValueKey(exploreKey),
+            genreSeed: genre,
+            features: features,
+          ),
           const SizedBox(),
           const FavoritesScreen(),
           const ProfileScreen(),

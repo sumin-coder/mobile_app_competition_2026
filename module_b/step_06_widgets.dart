@@ -89,3 +89,14 @@ Widget MarketCard(
   ),
   onTap: onTap,
 );
+
+List<Widget> moduleBProductDetailActions(
+  BuildContext context,
+  Product product,
+) => [
+  FavoriteButton(
+    selected: context.moduleB.favoriteIds.contains(product.id),
+    onPressed: () => context.moduleB.toggleFavorite(product.id),
+    large: true,
+  ).padAll(8),
+];

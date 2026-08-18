@@ -14,6 +14,7 @@ Future<void> main() => startModuleB();
 
 Future<void> startModuleB([String baseUrl = defaultBaseUrl]) async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   final client = ApiClient(
     baseUrl: baseUrl.trim().isEmpty ? defaultBaseUrl : baseUrl,
   );
@@ -22,8 +23,5 @@ Future<void> startModuleB([String baseUrl = defaultBaseUrl]) async {
     moduleBRepository: ModuleBApi(client),
   );
   runApp(moduleBApp(state));
-  await Future.wait([
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
-    state.initialize(),
-  ]);
+  await state.initialize();
 }

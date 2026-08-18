@@ -60,7 +60,13 @@ class NotificationScreen extends StatelessWidget {
       onTap: () async {
         await context.guard(() async {
           await context.moduleB.markNotificationRead(n.id);
-          if (context.mounted) await openProductDetail(context, n.productId);
+          if (context.mounted) {
+            await openProductDetail(
+              context,
+              n.productId,
+              actionsBuilder: moduleBProductDetailActions,
+            );
+          }
         });
       },
       child: Container(

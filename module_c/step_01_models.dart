@@ -18,8 +18,8 @@ extension ProductDraftData on ProductDraft {
     'condition': condition,
     'price': price,
     'tradeMethod': tradeMethod,
-    'barcode': barcode,
-    'description': description,
     'albumImage': image ?? imagePath,
+    if (barcode.isNotEmpty) 'barcode': barcode,
+    if (description.isNotEmpty) 'description': description,
   };
 }

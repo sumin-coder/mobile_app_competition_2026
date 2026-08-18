@@ -1,17 +1,14 @@
-import '../module_b/step_11_barcode.dart';
-import '../module_b/step_10_notifications.dart';
-import '../module_b/step_08_recommendation.dart';
-import '../module_b/step_07_ui.dart';
+import 'step_07_ui.dart';
 import 'step_09_product_detail.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     required this.onExplore,
-    this.moduleBEnabled = true,
+    this.features = const ModuleAFeatures(),
     super.key,
   });
   final ValueChanged<String?> onExplore;
-  final bool moduleBEnabled;
+  final ModuleAFeatures features;
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
@@ -19,22 +16,24 @@ class _HomeScreenState extends State<HomeScreen> {
   int sort = 0;
   Widget build(BuildContext context) {
     final state = context.moduleA;
-    final moduleB = widget.moduleBEnabled ? context.moduleB : null;
     return RefreshIndicator(
       onRefresh: state.refreshProducts,
       child: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
         children: [
           AppHeader(
-            notificationCount: moduleB?.unreadCount ?? 0,
-            onNotification: moduleB == null
+            notificationCount:
+                widget.features.notificationCount?.call(context) ?? 0,
+            onNotification: widget.features.openNotifications == null
                 ? null
-                : () => context.openPage(const NotificationScreen()),
+                : () => widget.features.openNotifications!(context),
           ),
           vGap12,
           MarketSearch(
             onTap: () => widget.onExplore(null),
-            onScan: moduleB == null ? null : () => openBarcodeSearch(context),
+            onScan: widget.features.openScanner == null
+                ? null
+                : () => widget.features.openScanner!(context),
           ),
           const SizedBox(height: 16),
           _content(state),
@@ -61,8 +60,11 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (widget.moduleBEnabled) ...[
-          Recommendation(_sorted(state.products, by: 0).take(5).toList()),
+        if (widget.features.recommendationBuilder != null) ...[
+          widget.features.recommendationBuilder!(
+            context,
+            _sorted(state.products, by: 0).take(5).toList(),
+          ),
           vGap28,
         ],
         _title('장르별 둘러보기', () => widget.onExplore(null)),
@@ -116,11 +118,15 @@ class _HomeScreenState extends State<HomeScreen> {
               final open = () => openProductDetail(
                 context,
                 p.id,
-                moduleBEnabled: widget.moduleBEnabled,
+                actionsBuilder: widget.features.productDetailActionsBuilder,
               );
-              return widget.moduleBEnabled
-                  ? MarketCard(context.moduleB, p, open, width: 145)
-                  : ProductCard(product: p, onTap: open, width: 145);
+              return widget.features.productCardBuilder?.call(
+                    context,
+                    p,
+                    open,
+                    145,
+                  ) ??
+                  ProductCard(product: p, onTap: open, width: 145);
             },
           ),
         ),

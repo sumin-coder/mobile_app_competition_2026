@@ -10,7 +10,11 @@ Future<void> openBarcodeSearch(BuildContext context) async {
     if (!context.mounted) return;
     p == null
         ? context.notify('바코드 "$code"에 해당하는 상품을 찾을 수 없습니다.')
-        : await openProductDetail(context, p.id);
+        : await openProductDetail(
+            context,
+            p.id,
+            actionsBuilder: moduleBProductDetailActions,
+          );
   });
 }
 
@@ -28,7 +32,7 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
   void finish(String? value) {
     if (done || value == null || value.isEmpty) return;
     done = true;
-    context.closePage(value.padLeft(13, '0'));
+    context.closePage(value);
   }
 
   Future<void> manual() async {

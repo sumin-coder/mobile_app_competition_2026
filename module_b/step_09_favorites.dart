@@ -41,7 +41,11 @@ class FavoritesScreen extends StatelessWidget {
                   ),
                   onDismissed: (_) => _remove(context, p.id, p.albumName),
                   child: InkWell(
-                    onTap: () => openProductDetail(context, p.id),
+                    onTap: () => openProductDetail(
+                      context,
+                      p.id,
+                      actionsBuilder: moduleBProductDetailActions,
+                    ),
                     child: SizedBox(
                       height: 80,
                       child: Row(

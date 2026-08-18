@@ -1,15 +1,17 @@
 import 'dart:async';
-import '../module_b/step_11_barcode.dart';
-import '../module_b/step_10_notifications.dart';
-import '../module_b/step_07_ui.dart';
+import 'step_07_ui.dart';
 import 'step_09_product_detail.dart';
 
 enum ProductSort { recent, popular, price }
 
 class ExploreScreen extends StatefulWidget {
-  const ExploreScreen({this.genreSeed, this.moduleBEnabled = true, super.key});
+  const ExploreScreen({
+    this.genreSeed,
+    this.features = const ModuleAFeatures(),
+    super.key,
+  });
   final String? genreSeed;
-  final bool moduleBEnabled;
+  final ModuleAFeatures features;
   State<ExploreScreen> createState() => _ExploreScreenState();
 }
 
@@ -94,23 +96,25 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Widget build(BuildContext context) {
     final state = context.moduleA;
-    final moduleB = widget.moduleBEnabled ? context.moduleB : null;
     final all = results(searched ?? state.products);
     return ListView(
       controller: scroll,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
       children: [
         AppHeader(
-          notificationCount: moduleB?.unreadCount ?? 0,
-          onNotification: moduleB == null
+          notificationCount:
+              widget.features.notificationCount?.call(context) ?? 0,
+          onNotification: widget.features.openNotifications == null
               ? null
-              : () => context.openPage(const NotificationScreen()),
+              : () => widget.features.openNotifications!(context),
         ),
         vGap12,
         MarketSearch(
           fieldKey: const Key('explore_search'),
           controller: search,
-          onScan: moduleB == null ? null : () => openBarcodeSearch(context),
+          onScan: widget.features.openScanner == null
+              ? null
+              : () => widget.features.openScanner!(context),
         ),
         vGap14,
         Row(
@@ -290,11 +294,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
         final open = () => openProductDetail(
           context,
           p.id,
-          moduleBEnabled: widget.moduleBEnabled,
+          actionsBuilder: widget.features.productDetailActionsBuilder,
         );
-        return widget.moduleBEnabled
-            ? MarketCard(context.moduleB, p, open)
-            : ProductCard(product: p, onTap: open);
+        return widget.features.productCardBuilder?.call(
+              context,
+              p,
+              open,
+              null,
+            ) ??
+            ProductCard(product: p, onTap: open);
       },
     ),
   );
