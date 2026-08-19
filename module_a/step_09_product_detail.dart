@@ -1,5 +1,8 @@
+// 홈·탐색·관심상품에서 진입하는 상품 상세 화면을 구현합니다.
+
 import 'step_07_ui.dart';
 
+// 상품 ID와 선택적 추가 액션을 받아 상세 화면을 여는 공통 진입 함수입니다.
 Future<void> openProductDetail(
   BuildContext context,
   int id, {
@@ -8,6 +11,7 @@ Future<void> openProductDetail(
   ProductDetailScreen(productId: id, actionsBuilder: actionsBuilder),
 );
 
+// 상품을 다시 조회하고 상세 정보 및 모듈별 액션을 표시합니다.
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({
     required this.productId,

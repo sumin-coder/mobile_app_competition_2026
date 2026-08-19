@@ -1,3 +1,5 @@
+// Module A 단독 앱의 실행 진입점으로 API와 상태 객체를 초기화합니다.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'step_02_api.dart';

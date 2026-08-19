@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
+// FORM 통합 테스트가 공유하는 앱 실행, 입력, 탐색, 검증 도우미입니다.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -9,11 +11,13 @@ import 'package:lp_app/module_b/step_03_native.dart';
 export 'package:flutter/material.dart';
 export 'package:flutter_test/flutter_test.dart';
 
+// 테스트 바인딩을 준비하고 각 FORM 시나리오를 testWidgets로 등록합니다.
 void formTest(String name, WidgetTesterCallback body) {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets(name, body);
 }
 
+// 반복되는 사용자 동작과 화면 검증을 WidgetTester 메서드로 제공합니다.
 extension Flow on WidgetTester {
   Future<void> tapWait(Finder target) async {
     await tap(target);
@@ -88,6 +92,7 @@ extension Flow on WidgetTester {
   }
 }
 
+// 테스트용 저장소를 준비하고 실제 누적 앱을 실행합니다.
 Future<void> startApp(WidgetTester tester) async {
   FavoriteStorage.memory = {};
   await app.startModuleCApp('');

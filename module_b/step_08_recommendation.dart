@@ -1,7 +1,10 @@
+// 홈 화면의 턴테이블형 오늘의 추천 상품 UI와 애니메이션을 구현합니다.
+
 import 'dart:async';
-import '../module_a/step_09_product_detail.dart';
+import '../../module_a/step_09_product_detail.dart';
 import 'step_07_ui.dart';
 
+// 상품 페이지 전환, 음반 회전, 톤암 드래그·자동 이동을 함께 제어합니다.
 class Recommendation extends StatefulWidget {
   const Recommendation(this.products, {super.key});
   final List<Product> products;

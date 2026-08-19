@@ -1,6 +1,9 @@
+// 로그인 후 처음 보이는 홈 화면으로 추천, 장르, 최신 상품을 구성합니다.
+
 import 'step_07_ui.dart';
 import 'step_09_product_detail.dart';
 
+// Module B 확장 기능이 있으면 알림·스캔·추천 UI도 함께 표시합니다.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     required this.onExplore,

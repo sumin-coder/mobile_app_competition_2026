@@ -1,9 +1,12 @@
+// Module A의 인증·상품 API 계약과 공통 HTTP 통신 구현을 담당합니다.
+
 import 'dart:convert';
 import 'dart:io';
 import 'step_01_models.dart';
 
 const networkError = '네트워크 연결을 확인한 후 다시 시도해주세요.';
 
+// 상태 계층이 구체적인 통신 방식과 분리되도록 제공하는 API 계약입니다.
 abstract interface class ModuleARepository {
   Future<AuthSession> login(String email, String password);
   void clearSession();
@@ -12,6 +15,7 @@ abstract interface class ModuleARepository {
   Future<Product> getProduct(int id);
 }
 
+// 모든 모듈이 공유하는 HTTP 요청, 응답 해석, 인증 토큰 처리를 수행합니다.
 class ApiClient {
   ApiClient({required String baseUrl})
     : baseUri = Uri.parse(
@@ -101,6 +105,7 @@ class ApiClient {
   ).map(product).toList();
 }
 
+// 로그인, 회원가입, 상품 조회 API를 실제 서버 경로에 연결합니다.
 class ModuleAApi implements ModuleARepository {
   ModuleAApi(this.client);
   final ApiClient client;

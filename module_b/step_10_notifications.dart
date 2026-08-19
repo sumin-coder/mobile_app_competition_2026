@@ -1,6 +1,9 @@
-import '../module_a/step_09_product_detail.dart';
+// 관심상품 가격 변동 알림의 조회, 읽음, 전체 삭제 UI를 구현합니다.
+
+import '../../module_a/step_09_product_detail.dart';
 import 'step_07_ui.dart';
 
+// 홈 헤더의 알림 버튼에서 진입하는 알림 목록 화면입니다.
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
   Widget build(BuildContext context) {

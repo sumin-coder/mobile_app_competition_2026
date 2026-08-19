@@ -1,8 +1,11 @@
+// 누적 앱의 홈·탐색·등록·관심상품·마이페이지 이동을 관리합니다.
+
 import '../module_a/step_12_module_a.dart';
 import '../module_b/step_12_module_b.dart';
 import 'step_12_module_c.dart';
 import 'step_07_ui.dart';
 
+// 세 모듈의 화면과 기능을 최종 하단 내비게이션에 결합합니다.
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
   State<MainShell> createState() => _MainShellState();

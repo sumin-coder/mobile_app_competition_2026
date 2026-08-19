@@ -1,6 +1,8 @@
+// Module B 단독 앱의 실행 진입점으로 API, 상태, 저장 데이터를 초기화합니다.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../module_a/step_02_api.dart';
+import '../../module_a/step_02_api.dart';
 import 'step_02_api.dart';
 import 'step_14_app.dart';
 import 'step_05_app_state.dart';

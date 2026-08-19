@@ -1,11 +1,14 @@
+// Module B의 관심상품, 가격 알림, 바코드 검색 상태와 생명주기를 관리합니다.
+
 import 'dart:async';
 import 'package:flutter/widgets.dart';
-import '../module_a/step_01_models.dart';
-import '../module_a/step_04_state.dart';
+import '../../module_a/step_01_models.dart';
+import '../../module_a/step_04_state.dart';
 import 'step_02_api.dart';
 import 'step_01_models.dart';
 import 'step_03_native.dart';
 
+// 관심상품 선택과 알림 조회·읽음 처리를 담당하는 상태 로직입니다.
 mixin ModuleBState on ChangeNotifier {
   ModuleBRepository get moduleBRepository;
   List<Product> get products;
@@ -147,6 +150,7 @@ mixin ModuleBState on ChangeNotifier {
   void disposeModuleB() => _notificationTimer?.cancel();
 }
 
+// 로그인·로그아웃에 맞춰 Module B 데이터를 시작하거나 정리합니다.
 mixin ModuleBLifecycle on ChangeNotifier, ModuleAState, ModuleBState {
   Future<void> initialize() => initializeModuleB();
   Future<void> loadAddedModules() => startModuleB();
@@ -157,6 +161,7 @@ mixin ModuleBLifecycle on ChangeNotifier, ModuleAState, ModuleBState {
   }
 }
 
+// Module B 상태를 하위 화면에 주입하고 BuildContext에서 접근하게 합니다.
 class ModuleBStateScope extends StateScope<ModuleBState> {
   const ModuleBStateScope({
     required ChangeNotifier state,

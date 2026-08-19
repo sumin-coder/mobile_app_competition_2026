@@ -1,3 +1,5 @@
+// 관심상품 ID를 Android 네이티브 저장소에 보관하고 테스트 메모리 저장소도 지원합니다.
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 

@@ -1,7 +1,10 @@
+// Module A의 홈·탐색 탭 전환과 홈에서 탐색으로 이동하는 흐름을 관리합니다.
+
 import 'step_11_home.dart';
 import 'step_10_explore.dart';
 import 'step_07_ui.dart';
 
+// Module A 단독 실행 시 사용하는 하단 내비게이션 셸입니다.
 class ModuleAShell extends StatefulWidget {
   const ModuleAShell({super.key});
 

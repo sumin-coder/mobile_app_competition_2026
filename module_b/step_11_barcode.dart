@@ -1,7 +1,10 @@
+// 카메라로 바코드를 인식하고 일치하는 상품 상세 화면을 엽니다.
+
 import 'package:mobile_scanner/mobile_scanner.dart';
-import '../module_a/step_09_product_detail.dart';
+import '../../module_a/step_09_product_detail.dart';
 import 'step_07_ui.dart';
 
+// 스캔 화면의 결과를 서버에서 검색해 상품 상세로 이어 줍니다.
 Future<void> openBarcodeSearch(BuildContext context) async {
   final code = await context.openPage<String>(const BarcodeScreen());
   if (code == null || !context.mounted) return;
@@ -18,6 +21,7 @@ Future<void> openBarcodeSearch(BuildContext context) async {
   });
 }
 
+// MobileScanner의 권한·인식·플래시·카메라 전환 UI를 관리합니다.
 class BarcodeScreen extends StatefulWidget {
   const BarcodeScreen({super.key});
   State<BarcodeScreen> createState() => _BarcodeScreenState();
@@ -142,6 +146,7 @@ class _BarcodeScreenState extends State<BarcodeScreen> {
   );
 }
 
+// 스캐너 중앙의 인식 영역과 모서리 가이드를 그립니다.
 class _ScanPainter extends CustomPainter {
   const _ScanPainter();
   void paint(Canvas canvas, Size size) {

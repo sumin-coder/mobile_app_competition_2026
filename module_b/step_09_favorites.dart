@@ -1,6 +1,9 @@
-import '../module_a/step_09_product_detail.dart';
+// 사용자가 저장한 관심상품을 모아 보여주고 상세 화면으로 연결합니다.
+
+import '../../module_a/step_09_product_detail.dart';
 import 'step_07_ui.dart';
 
+// 하단 관심상품 탭에서 사용하는 목록 화면입니다.
 class FavoritesScreen extends StatelessWidget {
   const FavoritesScreen({super.key});
   Widget build(BuildContext context) {

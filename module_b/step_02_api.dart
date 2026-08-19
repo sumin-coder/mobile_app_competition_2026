@@ -1,7 +1,10 @@
-import '../module_a/step_02_api.dart';
-import '../module_a/step_01_models.dart';
+// 바코드 검색과 가격 알림에 필요한 Module B 서버 통신을 담당합니다.
+
+import '../../module_a/step_02_api.dart';
+import '../../module_a/step_01_models.dart';
 import 'step_01_models.dart';
 
+// 상태 로직이 사용하는 Module B API 기능의 계약입니다.
 abstract interface class ModuleBRepository {
   Future<Product?> findByBarcode(String barcode);
   Future<List<PriceNotification>> getNotifications();
@@ -10,6 +13,7 @@ abstract interface class ModuleBRepository {
   Future<void> deleteAllNotifications();
 }
 
+// 공통 ApiClient를 이용해 바코드·알림 서버 경로를 호출합니다.
 class ModuleBApi implements ModuleBRepository {
   ModuleBApi(this.client);
   final ApiClient client;

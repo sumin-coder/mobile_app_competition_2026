@@ -1,3 +1,5 @@
+// 모든 모듈의 화면에서 재사용하는 UI 위젯, 라벨, 탐색 도우미를 모아 둡니다.
+
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +7,7 @@ import 'step_00_app_theme.dart';
 import 'step_01_models.dart';
 import 'step_04_state.dart';
 
+// 필터와 상품 등록 폼에서 공유하는 장르·상태 선택값입니다.
 const genres = [
   'ROCK',
   'JAZZ',
@@ -17,6 +20,7 @@ const genres = [
 ];
 const conditions = ['M', 'NM', 'VG+', 'VG', 'G'];
 const allConditions = ['SS', 'M', 'NM', 'EX', 'VG+', 'VG', 'G'];
+// 반복되는 간격과 에셋 경로를 일관되게 만드는 UI 상수·도우미입니다.
 final _thousandsPattern = RegExp(r'\B(?=(\d{3})+(?!\d))');
 const vGap4 = SizedBox(height: 4),
     vGap6 = SizedBox(height: 6),
@@ -44,6 +48,7 @@ Widget AssetIcon(String path, {double size = 24, Color? color}) => Builder(
   ),
 );
 
+// 서버 열거값을 화면용 문구와 가격 형식으로 바꿉니다.
 String genreLabel(String value) =>
     const {
       'ROCK': 'Rock',
@@ -84,6 +89,7 @@ String conditionSummary(String value) =>
 String formatWon(int value) =>
     '₩${value.toString().replaceAllMapped(_thousandsPattern, (_) => ',')}';
 
+// 화면 이동, 예외 알림, SnackBar 표시를 BuildContext에서 간단히 사용합니다.
 extension PageNavigation on BuildContext {
   Size get screenSize => MediaQuery.sizeOf(this);
   ThemeData get theme => Theme.of(this);
@@ -114,6 +120,7 @@ extension WidgetLayout on Widget {
   Widget safe() => SafeArea(child: this);
 }
 
+// 페이지 골격, 인증 분기, 하단 탭 구조를 만드는 공통 레이아웃입니다.
 Widget AppPage({
   required String title,
   required Widget body,
@@ -160,6 +167,7 @@ Widget AppShell({
 NavigationDestination appDestination(String icon, String label) =>
     NavigationDestination(icon: AssetIcon(commonIcon(icon)), label: label);
 
+// 목록의 로딩·빈 상태·오류·새로고침 UI를 한 번에 처리합니다.
 Widget RefreshPage<T>({
   required String title,
   required LoadStatus status,
@@ -226,6 +234,7 @@ Widget loadState({
   _ when empty => fixedHeight(height, emptyView),
   _ => success(),
 };
+// 확인 대화상자와 폼 제출 버튼에서 사용하는 공통 액션 UI입니다.
 Future<bool> confirmAction(
   BuildContext context, {
   required String title,
@@ -269,6 +278,7 @@ Widget SubmitButton({
       : Text(label),
 );
 
+// 로그인과 회원가입 폼에서 재사용하는 일반·비밀번호 입력 필드입니다.
 Widget AppField({
   required TextEditingController controller,
   required String hint,
@@ -338,6 +348,7 @@ Widget PasswordField({
   ),
 );
 
+// 홈과 탐색 화면 상단에서 사용하는 로고, 헤더, 검색 입력 UI입니다.
 Widget BrandLogo({double height = 45, bool centered = false}) => Align(
   alignment: centered ? Alignment.center : Alignment.centerLeft,
   child: Image.asset(
@@ -395,6 +406,7 @@ Widget MarketSearch({
   ),
 );
 
+// 장르 선택과 상품 이미지를 표현하는 탐색·상품 공통 UI입니다.
 Widget GenreGrid({required ValueChanged<String> onTap}) => GridView.count(
   shrinkWrap: true,
   physics: const NeverScrollableScrollPhysics(),
@@ -486,6 +498,7 @@ Widget AlbumCoverFallback(String albumName) => ColoredBox(
   ),
 );
 
+// 홈, 탐색, 관심상품에서 상품 정보를 일관된 카드 형태로 표시합니다.
 class ProductCard extends StatelessWidget {
   const ProductCard({
     required this.product,
@@ -572,6 +585,7 @@ Widget ProductListCard({
   ),
 );
 
+// 목록 화면의 빈 결과와 오류를 사용자에게 안내합니다.
 Widget EmptyState({
   required IconData icon,
   required String title,

@@ -1,3 +1,6 @@
+// API, 상태, 화면 사이에서 전달되는 Module A 핵심 데이터 모델을 정의합니다.
+
+// 로그인 사용자 정보이며 인증 상태와 마이페이지에서 사용합니다.
 typedef User = ({int id, String email, String name});
 
 User userFromJson(Map<String, dynamic> json) => (
@@ -6,6 +9,7 @@ User userFromJson(Map<String, dynamic> json) => (
   name: jsonText(json['name']),
 );
 
+// 로그인 응답과 회원가입 요청에 사용하는 인증 데이터입니다.
 typedef AuthSession = ({String token, User user});
 typedef SignupData = ({
   String email,
@@ -23,6 +27,7 @@ extension SignupJson on SignupData {
   };
 }
 
+// 홈, 탐색, 상세 화면이 함께 사용하는 상품 모델입니다.
 class Product {
   const Product({
     required this.id,
@@ -76,11 +81,13 @@ class Product {
   }
 }
 
+// 상품 목록의 최신순 정렬에 사용하는 편의 확장입니다.
 extension ProductSorting on Iterable<Product> {
   List<Product> sortedBy(Comparator<Product> compare) =>
       [...this]..sort(compare);
 }
 
+// API 오류를 사용자 메시지와 HTTP 상태 코드로 전달합니다.
 class AppException implements Exception {
   const AppException(this.message, [this.statusCode]);
   final String message;
@@ -88,6 +95,7 @@ class AppException implements Exception {
   String toString() => message;
 }
 
+// JSON 값의 타입 차이를 안전하게 흡수하는 공통 변환 함수입니다.
 String jsonText(Object? value, [String fallback = '']) =>
     value as String? ?? fallback;
 

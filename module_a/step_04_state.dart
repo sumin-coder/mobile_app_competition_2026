@@ -1,12 +1,16 @@
+// Module A의 인증·상품 상태와 위젯 트리 상태 접근 방식을 관리합니다.
+
 import 'package:flutter/widgets.dart';
 import 'step_02_api.dart';
 import 'step_01_models.dart';
 
+// 목록 화면에서 로딩, 성공, 빈 상태, 오류를 공통으로 표현합니다.
 enum LoadStatus { initial, loading, success, empty, error }
 
 typedef ListStateUpdate<T> =
     void Function(LoadStatus status, String? error, List<T>? data);
 
+// 여러 목록 상태에서 중복되는 비동기 로딩과 오류 처리를 담당합니다.
 Future<void> loadListState<T>(
   Future<List<T>> Function() fetch, {
   required Object? Function() session,
@@ -35,6 +39,7 @@ Future<void> loadListState<T>(
   }
 }
 
+// 로그인 세션과 전체 상품 목록을 소유하는 Module A 상태 로직입니다.
 mixin ModuleAState on ChangeNotifier {
   ModuleARepository get moduleARepository;
   Future<void> loadAddedModules() async {}
@@ -95,6 +100,7 @@ mixin ModuleAState on ChangeNotifier {
   );
 }
 
+// ChangeNotifier를 하위 화면에 전달하는 공통 InheritedNotifier입니다.
 class StateScope<T extends ChangeNotifier> extends InheritedNotifier<T> {
   const StateScope({required T state, required super.child, super.key})
     : super(notifier: state);
@@ -106,6 +112,7 @@ class StateScope<T extends ChangeNotifier> extends InheritedNotifier<T> {
   }
 }
 
+// Module A 상태를 위젯 트리에 주입하고 BuildContext에서 꺼내 씁니다.
 class ModuleAStateScope extends StateScope<ModuleAState> {
   const ModuleAStateScope({
     required ChangeNotifier state,

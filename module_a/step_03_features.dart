@@ -1,3 +1,5 @@
+// Module B 기능을 Module A 화면에 선택적으로 끼워 넣는 확장 계약입니다.
+
 import 'package:flutter/widgets.dart';
 import 'step_01_models.dart';
 

@@ -1,9 +1,13 @@
+// 검색, 필터, 정렬, 점진적 노출을 제공하는 상품 탐색 화면입니다.
+
 import 'dart:async';
 import 'step_07_ui.dart';
 import 'step_09_product_detail.dart';
 
+// 탐색 결과에 적용할 정렬 기준입니다.
 enum ProductSort { recent, popular, price }
 
+// 홈의 검색·장르 선택 또는 하단 탐색 탭에서 진입하는 화면입니다.
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({
     this.genreSeed,

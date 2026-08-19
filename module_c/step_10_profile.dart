@@ -1,7 +1,10 @@
+// 사용자 정보와 상품 관리·로그아웃 메뉴를 제공하는 마이페이지입니다.
+
 import 'step_07_ui.dart';
 import 'step_09_my_products.dart';
 import 'step_08_product_form.dart';
 
+// 하단 마이페이지 탭에서 사용자와 Module C 메뉴를 구성합니다.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
   Widget build(BuildContext context) {

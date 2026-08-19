@@ -1,5 +1,8 @@
+// 앱 전체 화면에서 공통으로 사용하는 색상, 글꼴, 컴포넌트 테마를 정의합니다.
+
 import 'package:flutter/material.dart';
 
+// 화면 전반의 의미별 색상을 한곳에서 관리합니다.
 abstract final class AppColors {
   static const background = Colors.black, onPrimary = background;
   static const surface = Colors.black87, filter = surface;
@@ -13,6 +16,7 @@ abstract final class AppColors {
   static const success = Colors.green;
 }
 
+// 제목, 가격, 설명 등 반복되는 텍스트 스타일을 제공합니다.
 abstract final class AppTextStyles {
   static const bold = TextStyle(fontWeight: FontWeight.bold);
   static const authTitle = TextStyle(fontSize: 28, fontWeight: FontWeight.bold);
@@ -45,6 +49,7 @@ abstract final class AppTextStyles {
   );
 }
 
+// 입력창과 둥근 박스에서 사용하는 공통 장식 생성기입니다.
 abstract final class AppDecor {
   static InputDecoration input(String hint) => InputDecoration(hintText: hint);
   static BoxDecoration rounded({
@@ -58,6 +63,7 @@ abstract final class AppDecor {
   );
 }
 
+// MaterialApp에 적용되는 Vinyl Groove 다크 테마입니다.
 abstract final class AppTheme {
   static OutlineInputBorder get _border => OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),

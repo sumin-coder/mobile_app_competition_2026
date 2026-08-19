@@ -1,3 +1,5 @@
+// 최종 누적 앱의 실행 진입점으로 모든 API와 상태를 초기화합니다.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../module_a/step_02_api.dart';

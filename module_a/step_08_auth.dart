@@ -1,5 +1,8 @@
+// 로그인·회원가입 화면과 입력값 검증 규칙을 구현합니다.
+
 import 'step_07_ui.dart';
 
+// 인증 폼의 이메일, 비밀번호, 이름 검증에 사용하는 규칙입니다.
 final _emailPattern = RegExp(r'^(?!.*\.@)[^@\s]+@[^@\s]+\.[^@\s]+$');
 final _upperCasePattern = RegExp('[A-Z]'), _lowerCasePattern = RegExp('[a-z]');
 final _strongPasswordPattern = RegExp(
@@ -26,6 +29,7 @@ String? _loginPasswordError(String? value) {
 
 final _mail = AssetIcon(moduleIcon('A', 'email')).padAll(14);
 
+// 로그인과 회원가입 화면이 공유하는 배경·로고 레이아웃입니다.
 Widget _AuthFrame(
   BuildContext context, {
   required Widget child,
@@ -87,6 +91,7 @@ Widget _AuthHeader(
   ],
 );
 
+// 이메일과 비밀번호를 받아 Module A 로그인 상태를 갱신합니다.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
   State<LoginScreen> createState() => _LoginScreenState();
@@ -194,6 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
+// 사용자 정보를 검증해 계정을 생성하는 회원가입 화면입니다.
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
   State<SignupScreen> createState() => _SignupScreenState();

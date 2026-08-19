@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_visible_for_testing_member
 
+// FORM 1.2의 상품 등록, 삭제, 로그아웃 흐름을 순서대로 검증합니다.
+
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:lp_app/module_c/step_12_module_c.dart';

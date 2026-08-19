@@ -1,3 +1,5 @@
+// FORM 1.1의 로그인, 탐색 필터, 관심상품 흐름을 순서대로 검증합니다.
+
 import 'package:lp_app/module_a/step_06_widgets.dart';
 import 'flow.dart';
 
