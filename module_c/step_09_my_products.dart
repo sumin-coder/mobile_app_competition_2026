@@ -1,15 +1,10 @@
-// 로그인 사용자가 등록한 상품을 조회하고 상세·등록·삭제로 연결합니다.
-
 import '../module_a/step_09_product_detail.dart';
 import 'step_07_ui.dart';
 import 'step_08_product_form.dart';
-
-// 마이페이지의 내 등록 상품 메뉴에서 진입하는 관리 화면입니다.
 class MyProductsScreen extends StatefulWidget {
   const MyProductsScreen({super.key});
   State<MyProductsScreen> createState() => _MyProductsScreenState();
 }
-
 class _MyProductsScreenState extends State<MyProductsScreen> {
   void initState() {
     super.initState();
@@ -17,7 +12,6 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       (_) => context.moduleC.refreshMyProducts(),
     );
   }
-
   Widget build(BuildContext context) {
     final state = context.moduleC;
     return RefreshPage(
@@ -46,7 +40,6 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
       ),
     );
   }
-
   Widget _item(BuildContext context, ModuleCState state, Product item) =>
       ProductListCard(
         product: item,
@@ -77,7 +70,6 @@ class _MyProductsScreenState extends State<MyProductsScreen> {
           ],
         ),
       );
-
   Future<void> remove(
     BuildContext context,
     ModuleCState state,

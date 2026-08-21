@@ -1,13 +1,11 @@
-// 모든 모듈의 화면에서 재사용하는 UI 위젯, 라벨, 탐색 도우미를 모아 둡니다.
-
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'step_00_app_theme.dart';
 import 'step_01_models.dart';
+import 'step_03_features.dart';
 import 'step_04_state.dart';
-
-// 필터와 상품 등록 폼에서 공유하는 장르·상태 선택값입니다.
 const genres = [
   'ROCK',
   'JAZZ',
@@ -20,8 +18,8 @@ const genres = [
 ];
 const conditions = ['M', 'NM', 'VG+', 'VG', 'G'];
 const allConditions = ['SS', 'M', 'NM', 'EX', 'VG+', 'VG', 'G'];
-// 반복되는 간격과 에셋 경로를 일관되게 만드는 UI 상수·도우미입니다.
 final _thousandsPattern = RegExp(r'\B(?=(\d{3})+(?!\d))');
+const _nativeChannel = MethodChannel('vinyl/native');
 const vGap4 = SizedBox(height: 4),
     vGap6 = SizedBox(height: 6),
     vGap8 = SizedBox(height: 8),
@@ -47,8 +45,6 @@ Widget AssetIcon(String path, {double size = 24, Color? color}) => Builder(
     color: color ?? IconTheme.of(context).color ?? Colors.white,
   ),
 );
-
-// 서버 열거값을 화면용 문구와 가격 형식으로 바꿉니다.
 String genreLabel(String value) =>
     const {
       'ROCK': 'Rock',
@@ -88,8 +84,6 @@ String conditionSummary(String value) =>
     '';
 String formatWon(int value) =>
     '₩${value.toString().replaceAllMapped(_thousandsPattern, (_) => ',')}';
-
-// 화면 이동, 예외 알림, SnackBar 표시를 BuildContext에서 간단히 사용합니다.
 extension PageNavigation on BuildContext {
   Size get screenSize => MediaQuery.sizeOf(this);
   ThemeData get theme => Theme.of(this);
@@ -106,21 +100,35 @@ extension PageNavigation on BuildContext {
       return false;
     }
   }
-
   void notify(String message, {SnackBarAction? action}) {
-    messages
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message), action: action));
+    if (action != null) {
+      messages
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message), action: action));
+      return;
+    }
+    unawaited(
+      _nativeChannel.invokeMethod<void>('showToast', message).catchError((_) {
+        if (mounted) messages.showSnackBar(SnackBar(content: Text(message)));
+      }),
+    );
   }
 }
-
+extension ModuleAFeatureActions on ModuleAFeatures {
+  void showNotifications(BuildContext context) {
+    final open = openNotifications;
+    open == null ? context.notify('알림 기능은 준비 중입니다.') : open(context);
+  }
+  void scanBarcode(BuildContext context) {
+    final open = openScanner;
+    open == null ? context.notify('바코드 검색 기능은 준비 중입니다.') : open(context);
+  }
+}
 extension WidgetLayout on Widget {
   Widget pad(EdgeInsetsGeometry value) => Padding(padding: value, child: this);
   Widget padAll(double value) => pad(EdgeInsets.all(value));
   Widget safe() => SafeArea(child: this);
 }
-
-// 페이지 골격, 인증 분기, 하단 탭 구조를 만드는 공통 레이아웃입니다.
 Widget AppPage({
   required String title,
   required Widget body,
@@ -134,22 +142,23 @@ Widget AppPage({
   ),
   body: body,
 );
-
 Widget AuthApp({
   required String title,
-  required ModuleAState state,
+  required ChangeNotifier state,
   required Widget home,
   required Widget signedOut,
-}) => MaterialApp(
-  title: title,
-  debugShowCheckedModeBanner: false,
-  theme: AppTheme.dark,
-  home: AnimatedBuilder(
-    animation: state,
-    builder: (_, _) => state.isLoggedIn ? home : signedOut,
+}) => StateScope(
+  state: state,
+  child: MaterialApp(
+    title: title,
+    debugShowCheckedModeBanner: false,
+    theme: AppTheme.dark,
+    home: AnimatedBuilder(
+      animation: state,
+      builder: (_, _) => (state as ModuleAState).isLoggedIn ? home : signedOut,
+    ),
   ),
 );
-
 Widget AppShell({
   required int index,
   required List<Widget> pages,
@@ -163,11 +172,8 @@ Widget AppShell({
     destinations: destinations,
   ),
 );
-
 NavigationDestination appDestination(String icon, String label) =>
     NavigationDestination(icon: AssetIcon(commonIcon(icon)), label: label);
-
-// 목록의 로딩·빈 상태·오류·새로고침 UI를 한 번에 처리합니다.
 Widget RefreshPage<T>({
   required String title,
   required LoadStatus status,
@@ -196,20 +202,17 @@ Widget RefreshPage<T>({
     },
   ),
 );
-
 void disposeControllers(Iterable<TextEditingController> controllers) {
   for (final controller in controllers) {
     controller.dispose();
   }
 }
-
 List<TextInputFormatter> digits([int? maxLength]) => [
   FilteringTextInputFormatter.digitsOnly,
   if (maxLength != null) LengthLimitingTextInputFormatter(maxLength),
 ];
 Widget singleLine(String text, {TextStyle? style}) =>
     Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: style);
-
 Widget fixedHeight(double height, Widget child) =>
     SizedBox(height: height, child: child);
 Widget scrollState(Widget child) =>
@@ -234,7 +237,6 @@ Widget loadState({
   _ when empty => fixedHeight(height, emptyView),
   _ => success(),
 };
-// 확인 대화상자와 폼 제출 버튼에서 사용하는 공통 액션 UI입니다.
 Future<bool> confirmAction(
   BuildContext context, {
   required String title,
@@ -257,7 +259,6 @@ Future<bool> confirmAction(
     ],
   ),
 ).then((confirmed) => confirmed ?? false);
-
 Widget SubmitButton({
   Key? key,
   required String label,
@@ -277,8 +278,6 @@ Widget SubmitButton({
         )
       : Text(label),
 );
-
-// 로그인과 회원가입 폼에서 재사용하는 일반·비밀번호 입력 필드입니다.
 Widget AppField({
   required TextEditingController controller,
   required String hint,
@@ -323,7 +322,6 @@ Widget AppField({
     ],
   );
 }
-
 Widget PasswordField({
   required TextEditingController controller,
   required String hint,
@@ -347,8 +345,6 @@ Widget PasswordField({
     icon: AssetIcon(moduleIcon('A', obscure ? 'visibility-off' : 'visibility')),
   ),
 );
-
-// 홈과 탐색 화면 상단에서 사용하는 로고, 헤더, 검색 입력 UI입니다.
 Widget BrandLogo({double height = 45, bool centered = false}) => Align(
   alignment: centered ? Alignment.center : Alignment.centerLeft,
   child: Image.asset(
@@ -357,7 +353,6 @@ Widget BrandLogo({double height = 45, bool centered = false}) => Align(
     fit: BoxFit.contain,
   ),
 );
-
 Widget AppHeader({
   required int notificationCount,
   VoidCallback? onNotification,
@@ -374,7 +369,6 @@ Widget AppHeader({
     ),
   ],
 );
-
 Widget MarketSearch({
   VoidCallback? onScan,
   TextEditingController? controller,
@@ -405,8 +399,6 @@ Widget MarketSearch({
     ),
   ),
 );
-
-// 장르 선택과 상품 이미지를 표현하는 탐색·상품 공통 UI입니다.
 Widget GenreGrid({required ValueChanged<String> onTap}) => GridView.count(
   shrinkWrap: true,
   physics: const NeverScrollableScrollPhysics(),
@@ -436,7 +428,6 @@ Widget GenreGrid({required ValueChanged<String> onTap}) => GridView.count(
       ),
   ],
 );
-
 Widget ProductImage({
   required Product product,
   double borderRadius = 8,
@@ -447,7 +438,6 @@ Widget ProductImage({
   borderRadius: borderRadius,
   fit: fit,
 );
-
 Widget AlbumImage({
   required String path,
   required String name,
@@ -471,7 +461,6 @@ Widget AlbumImage({
     ),
   );
 }
-
 Widget AlbumCoverFallback(String albumName) => ColoredBox(
   key: const Key('api-album-fallback'),
   color: AppColors.albumBackground,
@@ -497,8 +486,6 @@ Widget AlbumCoverFallback(String albumName) => ColoredBox(
     ],
   ),
 );
-
-// 홈, 탐색, 관심상품에서 상품 정보를 일관된 카드 형태로 표시합니다.
 class ProductCard extends StatelessWidget {
   const ProductCard({
     required this.product,
@@ -557,13 +544,11 @@ class ProductCard extends StatelessWidget {
     ),
   );
 }
-
 Widget InfoBadge(String text) => Container(
   padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
   decoration: AppDecor.rounded(color: Colors.black87, radius: 5),
   child: Text(text, style: AppTextStyles.smallBold),
 );
-
 Widget ProductListCard({
   required Product product,
   required Widget details,
@@ -584,8 +569,6 @@ Widget ProductListCard({
     trailing: trailing,
   ),
 );
-
-// 목록 화면의 빈 결과와 오류를 사용자에게 안내합니다.
 Widget EmptyState({
   required IconData icon,
   required String title,
@@ -601,7 +584,6 @@ Widget EmptyState({
     ],
   ).padAll(24),
 );
-
 Widget ErrorState({required String message, required VoidCallback onRetry}) =>
     Center(
       child: Column(

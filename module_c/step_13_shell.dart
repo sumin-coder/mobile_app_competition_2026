@@ -1,28 +1,18 @@
-// 누적 앱의 홈·탐색·등록·관심상품·마이페이지 이동을 관리합니다.
-
-import '../module_a/step_12_module_a.dart';
-import '../module_b/step_12_module_b.dart';
-import 'step_12_module_c.dart';
+import '../module_a/step_13_shell.dart' show marketPages;
+import '../module_b/step_09_favorites.dart';
+import '../module_b/step_12_features.dart';
+import 'step_08_product_form.dart';
+import 'step_10_profile.dart';
 import 'step_07_ui.dart';
-
-// 세 모듈의 화면과 기능을 최종 하단 내비게이션에 결합합니다.
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
   State<MainShell> createState() => _MainShellState();
 }
-
-class _MainShellState extends State<MainShell> {
-  int page = 0, exploreKey = 0;
-  String? genre;
-  void explore(String? value) => setState(() {
-    page = 1;
-    genre = value;
-    exploreKey++;
-  });
+class _MainShellState extends State<MainShell>
+    with ExploreShellState<MainShell> {
   Future<void> add() async {
     await context.openPage<bool>(const AddProductScreen());
   }
-
   void select(int value) {
     if (value == 2) {
       add();
@@ -33,16 +23,10 @@ class _MainShellState extends State<MainShell> {
     }
     setState(() => page = value);
   }
-
   Widget build(BuildContext context) {
     final features = moduleBFeatures();
     final pages = [
-          HomeScreen(onExplore: explore, features: features),
-          ExploreScreen(
-            key: ValueKey(exploreKey),
-            genreSeed: genre,
-            features: features,
-          ),
+          ...marketPages(explore, exploreKey, genre, features),
           const SizedBox(),
           const FavoritesScreen(),
           const ProfileScreen(),
@@ -67,7 +51,6 @@ class _MainShellState extends State<MainShell> {
     );
   }
 }
-
 Widget _addButton() => Container(
   key: const Key('add-navigation-button'),
   width: 48,

@@ -1,16 +1,11 @@
-// 홈 화면의 턴테이블형 오늘의 추천 상품 UI와 애니메이션을 구현합니다.
-
 import 'dart:async';
 import '../../module_a/step_09_product_detail.dart';
 import 'step_07_ui.dart';
-
-// 상품 페이지 전환, 음반 회전, 톤암 드래그·자동 이동을 함께 제어합니다.
 class Recommendation extends StatefulWidget {
   const Recommendation(this.products, {super.key});
   final List<Product> products;
   State<Recommendation> createState() => _RecommendationState();
 }
-
 class _RecommendationState extends State<Recommendation>
     with TickerProviderStateMixin {
   late final recordController = AnimationController(
@@ -34,29 +29,24 @@ class _RecommendationState extends State<Recommendation>
     super.initState();
     scheduleNext();
   }
-
   void didUpdateWidget(covariant Recommendation oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (page >= widget.products.length) page = 0;
   }
-
   void startArmDrag(DragStartDetails details) {
     if (changing) return;
     timer?.cancel();
     recordController.stop();
   }
-
   void updateArmDrag(DragUpdateDetails details) {
     if (changing) return;
     final delta = details.primaryDelta ?? 0;
     armController.value = (armController.value + delta / 120).clamp(0, 1);
   }
-
   Future<void> endArmDrag(DragEndDetails details) async {
     if (changing) return;
     await _setPlaying(armController.value >= .55);
   }
-
   Future<void> _setPlaying(bool value) async {
     timer?.cancel();
     if (playing != value) setState(() => playing = value);
@@ -64,18 +54,15 @@ class _RecommendationState extends State<Recommendation>
     await (value ? armController.forward() : armController.reverse());
     scheduleNext();
   }
-
   void scheduleNext() {
     timer?.cancel();
     timer = Timer(const Duration(seconds: 5), next);
   }
-
   void pageChanged(int index) {
     final nextPage = index % widget.products.length;
     if (page != nextPage) setState(() => page = nextPage);
     if (!changing) playing ? unawaited(moveArm()) : scheduleNext();
   }
-
   Future<void> next() async {
     if (changing || widget.products.length < 2 || !pageController.hasClients)
       return;
@@ -92,7 +79,6 @@ class _RecommendationState extends State<Recommendation>
     changing = false;
     scheduleNext();
   }
-
   Future<void> moveArm() async {
     changing = true;
     timer?.cancel();
@@ -101,7 +87,6 @@ class _RecommendationState extends State<Recommendation>
     changing = false;
     if (mounted) scheduleNext();
   }
-
   void dispose() {
     timer?.cancel();
     recordController.dispose();
@@ -109,7 +94,6 @@ class _RecommendationState extends State<Recommendation>
     pageController.dispose();
     super.dispose();
   }
-
   Widget build(BuildContext context) {
     if (widget.products.isEmpty) return const SizedBox.shrink();
     final product = widget.products[page];
@@ -236,16 +220,36 @@ class _RecommendationState extends State<Recommendation>
               },
             ),
           ),
-          if (playing)
-            InkWell(
-              key: ValueKey('info_${product.id}'),
-              onTap: () => openProductDetail(
-                context,
-                product.id,
-                actionsBuilder: moduleBProductDetailActions,
+          SizedBox(
+            height: 74,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 350),
+              reverseDuration: const Duration(milliseconds: 280),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, .18),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
               ),
-              child: _productInfo(product),
-            ).pad(const EdgeInsets.only(top: 8)),
+              child: playing
+                  ? const SizedBox(key: Key('recommendation_info_hidden'))
+                  : InkWell(
+                      key: ValueKey('info_${product.id}'),
+                      onTap: () => openProductDetail(
+                        context,
+                        product.id,
+                        actionsBuilder: moduleBProductDetailActions,
+                      ),
+                      child: _productInfo(product),
+                    ).pad(const EdgeInsets.only(top: 8)),
+            ),
+          ),
           vGap8,
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -268,7 +272,6 @@ class _RecommendationState extends State<Recommendation>
       ),
     );
   }
-
   Widget _productInfo(Product product) => SizedBox(
     height: 66,
     child: Row(

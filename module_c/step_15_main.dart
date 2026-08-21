@@ -1,31 +1,27 @@
-// 최종 누적 앱의 실행 진입점으로 모든 API와 상태를 초기화합니다.
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../module_a/step_02_api.dart';
-import '../module_b/step_02_api.dart';
+import '../module_a/step_15_main.dart' as base;
+import '../module_b/step_15_main.dart' as module_b;
 import 'step_02_api.dart';
-import 'step_14_app.dart';
-import 'step_05_app_state.dart';
-
-const defaultBaseUrl = String.fromEnvironment(
-  'API_BASE_URL',
-  defaultValue: 'http://api.vinylgroove.com',
-);
-
+import 'step_04_state.dart';
+import 'step_13_shell.dart';
 Future<void> main() => startModuleCApp();
-
-Future<void> startModuleCApp([String baseUrl = defaultBaseUrl]) async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  final client = ApiClient(
-    baseUrl: baseUrl.trim().isEmpty ? defaultBaseUrl : baseUrl,
-  );
+Future<void> startModuleCApp([String baseUrl = base.defaultBaseUrl]) {
   final state = AppState(
-    moduleARepository: CumulativeModuleAApi(client),
-    moduleBRepository: ModuleBApi(client),
-    moduleCRepository: ModuleCApi(client),
+    ModuleCApi(ApiClient(baseUrl: base.resolveBaseUrl(baseUrl))),
   );
-  runApp(vinylGrooveApp(state));
-  await state.initialize();
+  return base.launchApp(
+    base.competitionApp('Vinyl Groove', state, const MainShell()),
+    state.initialize,
+  );
+}
+class AppState extends module_b.ModuleBAppState with ModuleCState {
+  AppState(this.moduleCRepository)
+    : super(moduleCRepository, moduleCRepository);
+  final ModuleCApi moduleCRepository;
+  Future<void> loadAddedModules() =>
+      Future.wait([startModuleB(), startModuleC()]);
+  void clearAddedModules() {
+    clearModuleB();
+    clearModuleC();
+  }
 }

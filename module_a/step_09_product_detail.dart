@@ -1,8 +1,4 @@
-// 홈·탐색·관심상품에서 진입하는 상품 상세 화면을 구현합니다.
-
 import 'step_07_ui.dart';
-
-// 상품 ID와 선택적 추가 액션을 받아 상세 화면을 여는 공통 진입 함수입니다.
 Future<void> openProductDetail(
   BuildContext context,
   int id, {
@@ -10,8 +6,6 @@ Future<void> openProductDetail(
 }) => context.openPage(
   ProductDetailScreen(productId: id, actionsBuilder: actionsBuilder),
 );
-
-// 상품을 다시 조회하고 상세 정보 및 모듈별 액션을 표시합니다.
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({
     required this.productId,
@@ -22,7 +16,6 @@ class ProductDetailScreen extends StatefulWidget {
   final ProductDetailActionsBuilder? actionsBuilder;
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
-
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Product? product;
   String? error;
@@ -30,7 +23,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => load());
   }
-
   Future<void> load() async {
     setState(() {
       product = null;
@@ -45,7 +37,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       if (mounted) setState(() => error = e.message);
     }
   }
-
   Widget build(BuildContext context) => switch ((error, product)) {
     (final message?, _) => Scaffold(
       appBar: AppBar(),
@@ -56,7 +47,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     ),
     (_, final item?) => _content(context, item),
   };
-
   Widget _content(BuildContext context, Product p) {
     return Scaffold(
       body: CustomScrollView(
@@ -180,7 +170,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ).safe(),
     );
   }
-
   Widget _round(IconData icon, VoidCallback tap) => IconButton.filled(
     onPressed: tap,
     style: IconButton.styleFrom(backgroundColor: Colors.black54),

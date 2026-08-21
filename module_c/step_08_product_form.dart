@@ -1,20 +1,12 @@
-// 이미지와 상품 정보를 입력·검증해 서버에 등록하는 화면입니다.
-
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'step_03_native.dart';
 import 'step_07_ui.dart';
-
-// 통합 테스트에서 네이티브 사진 선택을 대체하기 위한 주입 지점입니다.
-@visibleForTesting
 Future<String?> Function(PhotoSource source)? productImagePickerOverride;
-
-// 하단 등록 버튼, 마이페이지, 내 상품 화면에서 진입하는 상품 등록 폼입니다.
 class AddProductScreen extends StatefulWidget {
   const AddProductScreen({super.key});
   State<AddProductScreen> createState() => _AddProductScreenState();
 }
-
 class _AddProductScreenState extends State<AddProductScreen> {
   final form = GlobalKey<FormState>();
   final album = TextEditingController(),
@@ -29,8 +21,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
     disposeControllers([album, artist, price, barcode, description]);
     super.dispose();
   }
-
-  // 사진 출처를 선택하고 네이티브에서 받은 파일 경로를 폼에 반영합니다.
   Future<void> pickImage() async {
     final source = await showModalBottomSheet<PhotoSource>(
       context: context,
@@ -60,8 +50,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       if (mounted) context.notify('사진 접근 권한을 확인해주세요.');
     }
   }
-
-  // 전체 입력값과 이미지를 확인한 뒤 Module C 상태를 통해 등록합니다.
   Future<void> submit() async {
     setState(() => validate = true);
     if (!(form.currentState?.validate() ?? false) || image == null) {
@@ -88,7 +76,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       context.closePage(true);
     }
   }
-
   Widget build(BuildContext context) {
     final state = context.moduleC;
     return AppPage(
@@ -200,7 +187,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
       ),
     );
   }
-
   String? Function(String?) requiredText(String message) =>
       (value) => value?.trim().isEmpty ?? true ? message : null;
   Widget input(

@@ -1,8 +1,4 @@
-// Module B 알림 화면과 상태에서 사용하는 가격 변동 알림 모델입니다.
-
 import '../../module_a/step_01_models.dart';
-
-// 서버의 상품 가격 변동 내역과 읽음 상태를 표현합니다.
 class PriceNotification {
   PriceNotification({
     required this.id,
@@ -15,12 +11,10 @@ class PriceNotification {
     required this.isRead,
     required this.createdAt,
   });
-
   final int id, productId, previousPrice, currentPrice;
   final String albumName, artist, albumImage;
   bool isRead;
   final DateTime createdAt;
-
   factory PriceNotification.fromJson(
     Map<String, dynamic> json, {
     Uri? baseUri,

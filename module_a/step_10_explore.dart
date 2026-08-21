@@ -1,24 +1,17 @@
-// 검색, 필터, 정렬, 점진적 노출을 제공하는 상품 탐색 화면입니다.
-
 import 'dart:async';
 import 'step_07_ui.dart';
 import 'step_09_product_detail.dart';
-
-// 탐색 결과에 적용할 정렬 기준입니다.
 enum ProductSort { recent, popular, price }
-
-// 홈의 검색·장르 선택 또는 하단 탐색 탭에서 진입하는 화면입니다.
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({
     this.genreSeed,
-    this.features = const ModuleAFeatures(),
+    this.features = emptyModuleAFeatures,
     super.key,
   });
   final String? genreSeed;
   final ModuleAFeatures features;
   State<ExploreScreen> createState() => _ExploreScreenState();
 }
-
 class _ExploreScreenState extends State<ExploreScreen> {
   final search = TextEditingController(), scroll = ScrollController();
   final genresPicked = <String>{}, conditionsPicked = <String>{};
@@ -27,24 +20,20 @@ class _ExploreScreenState extends State<ExploreScreen> {
   RangeValues prices = const RangeValues(1000, 1000000);
   String? trade;
   ProductSort sort = ProductSort.recent;
-  bool expanded = true;
+  bool expanded = true, loadingMore = false;
   int visible = 12;
   void initState() {
     super.initState();
     if (widget.genreSeed != null) genresPicked.add(widget.genreSeed!);
     search.addListener(searchChanged);
-    scroll.addListener(() {
-      if (scroll.position.extentAfter < 220) setState(() => visible += 12);
-    });
+    scroll.addListener(loadMore);
   }
-
   void dispose() {
     debounce?.cancel();
     search.dispose();
     scroll.dispose();
     super.dispose();
   }
-
   void searchChanged() {
     debounce?.cancel();
     final keyword = search.text.trim();
@@ -66,7 +55,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
       }
     });
   }
-
+  void loadMore() {
+    if (!mounted || loadingMore || !scroll.hasClients) return;
+    final total = results(searched ?? context.moduleA.products).length;
+    if (visible >= total || scroll.position.extentAfter > 180) return;
+    loadingMore = true;
+    setState(() => visible = (visible + 12).clamp(0, total));
+    WidgetsBinding.instance.addPostFrameCallback((_) => loadingMore = false);
+  }
+  void updateFilter(VoidCallback update) => setState(() {
+    update();
+    visible = 12;
+  });
   void reset() => setState(() {
     search.clear();
     genresPicked.clear();
@@ -97,7 +97,6 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ProductSort.price => (a, b) => a.price.compareTo(b.price),
         });
   }
-
   Widget build(BuildContext context) {
     final state = context.moduleA;
     final all = results(searched ?? state.products);
@@ -108,17 +107,13 @@ class _ExploreScreenState extends State<ExploreScreen> {
         AppHeader(
           notificationCount:
               widget.features.notificationCount?.call(context) ?? 0,
-          onNotification: widget.features.openNotifications == null
-              ? null
-              : () => widget.features.openNotifications!(context),
+          onNotification: () => widget.features.showNotifications(context),
         ),
         vGap12,
         MarketSearch(
           fieldKey: const Key('explore_search'),
           controller: search,
-          onScan: widget.features.openScanner == null
-              ? null
-              : () => widget.features.openScanner!(context),
+          onScan: () => widget.features.scanBarcode(context),
         ),
         vGap14,
         Row(
@@ -147,7 +142,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     min: 1000,
                     max: 1000000,
                     values: prices,
-                    onChanged: (v) => setState(() => prices = v),
+                    onChanged: (v) => updateFilter(() => prices = v),
                   ),
                 ),
               ),
@@ -163,7 +158,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const [null, 'DIRECT', 'DELIVERY', 'BOTH'],
             trade,
             (v) => v == null ? '전체' : tradeLabel(v),
-            (v) => setState(() => trade = v),
+            (v) => updateFilter(() => trade = v),
           ),
         ],
         Center(
@@ -197,7 +192,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   child: Text('최저 가격순'),
                 ),
               ],
-              onChanged: (v) => setState(() => sort = v ?? ProductSort.recent),
+              onChanged: (v) => updateFilter(
+                () => sort = v ?? ProductSort.recent,
+              ),
             ),
           ],
         ).pad(const EdgeInsets.symmetric(vertical: 14)),
@@ -205,19 +202,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ],
     ).safe();
   }
-
   Widget _filterRow(
     String title,
     List<String> values,
     Set<String> picked,
     String Function(String) label,
   ) => _filter(title, [
-    _chip('전체', picked.isEmpty, () => setState(picked.clear)),
+    _chip('전체', picked.isEmpty, () => updateFilter(picked.clear)),
     for (final v in values)
       _chip(
         label(v),
         picked.contains(v),
-        () => setState(
+        () => updateFilter(
           () => picked.contains(v) ? picked.remove(v) : picked.add(v),
         ),
         key: Key('filter_$v'),
@@ -230,7 +226,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
     String Function(T) label,
     ValueChanged<T> select,
   ) => _filter(title, [
-    for (final v in values) _chip(label(v), v == selected, () => select(v)),
+    for (final v in values)
+      _chip(label(v), v == selected, () => updateFilter(() => select(v))),
   ]);
   Widget _filter(String title, List<Widget> chips, {bool top = false}) => Row(
     crossAxisAlignment: top
@@ -300,13 +297,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
           p.id,
           actionsBuilder: widget.features.productDetailActionsBuilder,
         );
-        return widget.features.productCardBuilder?.call(
-              context,
-              p,
-              open,
-              null,
-            ) ??
-            ProductCard(product: p, onTap: open);
+        return KeyedSubtree(
+          key: ValueKey('explore_product_${p.id}'),
+          child:
+              widget.features.productCardBuilder?.call(
+                context,
+                p,
+                open,
+                null,
+              ) ??
+              ProductCard(product: p, onTap: open),
+        );
       },
     ),
   );

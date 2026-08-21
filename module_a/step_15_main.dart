@@ -1,24 +1,41 @@
-// Module A 단독 앱의 실행 진입점으로 API와 상태 객체를 초기화합니다.
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'step_02_api.dart';
-import 'step_14_app.dart';
-import 'step_05_app_state.dart';
-
+import 'step_04_state.dart';
+import 'step_06_widgets.dart';
+import 'step_08_auth.dart';
+import 'step_13_shell.dart';
 const defaultBaseUrl = String.fromEnvironment(
   'API_BASE_URL',
   defaultValue: 'http://api.vinylgroove.com',
 );
-
 Future<void> main() => startModuleA();
-
-Future<void> startModuleA([String baseUrl = defaultBaseUrl]) async {
+Widget competitionApp(String title, ChangeNotifier state, Widget home) =>
+    AuthApp(
+      title: title,
+      state: state,
+      home: home,
+      signedOut: const LoginScreen(),
+    );
+String resolveBaseUrl(String value) =>
+    value.trim().isEmpty ? defaultBaseUrl : value;
+Future<void> launchApp(
+  Widget app, [
+  Future<void> Function()? initialize,
+]) async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  final client = ApiClient(
-    baseUrl: baseUrl.trim().isEmpty ? defaultBaseUrl : baseUrl,
+  runApp(app);
+  await initialize?.call();
+}
+Future<void> startModuleA([String baseUrl = defaultBaseUrl]) {
+  final client = ApiClient(baseUrl: resolveBaseUrl(baseUrl));
+  final state = ModuleAAppState(ModuleAApi(client));
+  return launchApp(
+    competitionApp('Vinyl Groove - Module A', state, const ModuleAShell()),
   );
-  final state = ModuleAAppState(moduleARepository: ModuleAApi(client));
-  runApp(moduleAApp(state));
+}
+class ModuleAAppState extends ChangeNotifier with ModuleAState {
+  ModuleAAppState(this.moduleARepository);
+  final ModuleAApi moduleARepository;
 }

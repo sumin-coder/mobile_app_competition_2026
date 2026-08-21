@@ -1,21 +1,7 @@
-// Module A의 인증·상품 API 계약과 공통 HTTP 통신 구현을 담당합니다.
-
 import 'dart:convert';
 import 'dart:io';
 import 'step_01_models.dart';
-
 const networkError = '네트워크 연결을 확인한 후 다시 시도해주세요.';
-
-// 상태 계층이 구체적인 통신 방식과 분리되도록 제공하는 API 계약입니다.
-abstract interface class ModuleARepository {
-  Future<AuthSession> login(String email, String password);
-  void clearSession();
-  Future<void> signup(SignupData data);
-  Future<List<Product>> getProducts([String keyword = '']);
-  Future<Product> getProduct(int id);
-}
-
-// 모든 모듈이 공유하는 HTTP 요청, 응답 해석, 인증 토큰 처리를 수행합니다.
 class ApiClient {
   ApiClient({required String baseUrl})
     : baseUri = Uri.parse(
@@ -23,11 +9,9 @@ class ApiClient {
             ? baseUrl.substring(0, baseUrl.length - 1)
             : baseUrl,
       );
-
   final Uri baseUri;
   final HttpClient _client = HttpClient();
   String? token;
-
   Future<Object?> request(
     String method,
     String path, {
@@ -79,7 +63,6 @@ class ApiClient {
       throw const AppException(networkError);
     }
   }
-
   Future<void> send(
     String method,
     String path, {
@@ -87,29 +70,22 @@ class ApiClient {
   }) async {
     await request(method, path, query: query);
   }
-
   Map<String, dynamic> map(Object? value) =>
       value is Map<String, dynamic> ? value : <String, dynamic>{};
-
   List<Map<String, dynamic>> list(Object? value) => value is List
       ? value.whereType<Map<String, dynamic>>().toList()
       : <Map<String, dynamic>>[];
-
   Product product(Object? value) =>
-      Product.fromJson(map(value), baseUri: baseUri);
-
+      productFromJson(map(value), baseUri: baseUri);
   List<Product> products(Object? value) => list(
     value is Map<String, dynamic>
         ? value['products'] ?? value['items'] ?? const <Object>[]
         : value,
   ).map(product).toList();
 }
-
-// 로그인, 회원가입, 상품 조회 API를 실제 서버 경로에 연결합니다.
-class ModuleAApi implements ModuleARepository {
+class ModuleAApi {
   ModuleAApi(this.client);
   final ApiClient client;
-
   Future<Object?> loginRequest(String path, String email, String password) =>
       client.request(
         'POST',
@@ -117,7 +93,6 @@ class ModuleAApi implements ModuleARepository {
         body: {'email': email, 'password': password},
         authenticate: false,
       );
-
   AuthSession saveSession(Object? response) {
     final data = client.map(response);
     final token = data['token'] as String? ?? '';
@@ -129,12 +104,9 @@ class ModuleAApi implements ModuleARepository {
     client.token = token;
     return session;
   }
-
   Future<AuthSession> login(String email, String password) async =>
       saveSession(await loginRequest('/auth/login', email, password));
-
   void clearSession() => client.token = null;
-
   Future<void> signup(SignupData data) async {
     await client.request(
       'POST',
@@ -143,7 +115,6 @@ class ModuleAApi implements ModuleARepository {
       body: data.json,
     );
   }
-
   Future<List<Product>> getProducts([String keyword = '']) async =>
       client.products(
         await client.request(
@@ -157,7 +128,6 @@ class ModuleAApi implements ModuleARepository {
           },
         ),
       );
-
   Future<Product> getProduct(int id) async =>
       client.product(await client.request('GET', '/products/$id'));
 }

@@ -1,20 +1,15 @@
-// 로그인 후 처음 보이는 홈 화면으로 추천, 장르, 최신 상품을 구성합니다.
-
 import 'step_07_ui.dart';
 import 'step_09_product_detail.dart';
-
-// Module B 확장 기능이 있으면 알림·스캔·추천 UI도 함께 표시합니다.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({
     required this.onExplore,
-    this.features = const ModuleAFeatures(),
+    this.features = emptyModuleAFeatures,
     super.key,
   });
   final ValueChanged<String?> onExplore;
   final ModuleAFeatures features;
   State<HomeScreen> createState() => _HomeScreenState();
 }
-
 class _HomeScreenState extends State<HomeScreen> {
   int sort = 0;
   Widget build(BuildContext context) {
@@ -27,16 +22,12 @@ class _HomeScreenState extends State<HomeScreen> {
           AppHeader(
             notificationCount:
                 widget.features.notificationCount?.call(context) ?? 0,
-            onNotification: widget.features.openNotifications == null
-                ? null
-                : () => widget.features.openNotifications!(context),
+            onNotification: () => widget.features.showNotifications(context),
           ),
           vGap12,
           MarketSearch(
             onTap: () => widget.onExplore(null),
-            onScan: widget.features.openScanner == null
-                ? null
-                : () => widget.features.openScanner!(context),
+            onScan: () => widget.features.scanBarcode(context),
           ),
           const SizedBox(height: 16),
           _content(state),
@@ -44,7 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     ).safe();
   }
-
   Widget _content(ModuleAState state) => loadState(
     status: state.productStatus,
     empty: state.products.isEmpty,
@@ -136,7 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
   Widget _title(String text, VoidCallback more) => Row(
     children: [
       Expanded(child: Text(text, style: AppTextStyles.section)),
